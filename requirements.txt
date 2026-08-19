@@ -1,0 +1,13 @@
+fastapi 
+uvicorn 
+openai
+pydantic 
+python-multipart 
+python-dotenv
+python-docx
+pypdf
+httpx
+beautifulsoup4
+chromadb
+langchain-text-splitters
+
