@@ -48,6 +48,16 @@ class PriorityLevel(str, Enum):
     MEDIUM = "Medium Priority"
     LOW = "Low Priority"
 
+    @classmethod
+    def _missing_(cls, value: str):
+        """Normalize short priority values (e.g. 'High' -> 'High Priority')."""
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            for member in cls:
+                if normalized == member.value.lower() or normalized == member.value.lower().replace(" priority", ""):
+                    return member
+        return None
+
 
 # ---------------------------------------------------------------------------
 # Request Models
