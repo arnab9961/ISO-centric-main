@@ -7,7 +7,7 @@ import httpx
 from bs4 import BeautifulSoup
 from pydantic import ValidationError
 
-from app.core.config import DEEPSEEK_MODEL
+from app.core.config import OPENAI_MODEL
 from app.core.models import (
     AdvancedIsoSuggestionRequest,
     IsoSuggestionOption,
@@ -119,7 +119,7 @@ Data to analyze:
     response_text, finish_reason = await generate_with_deepseek(
         prompt=prompt,
         system_instruction=system_instruction,
-        model=DEEPSEEK_MODEL,
+        model=OPENAI_MODEL,
         max_tokens=4096,
         temperature=0.7,
         response_format={"type": "json_object"},
@@ -199,7 +199,7 @@ IMPORTANT: You MUST prioritize and suggest the ISO standards explicitly mentione
     response_text, finish_reason = await generate_with_deepseek(
         prompt=prompt,
         system_instruction=system_instruction,
-        model=DEEPSEEK_MODEL,
+        model=OPENAI_MODEL,
         max_tokens=8192,
         temperature=0.5,
         response_format={"type": "json_object"},
@@ -279,7 +279,7 @@ IMPORTANT: You MUST prioritize and suggest the ISO standards explicitly mentione
     response_text, finish_reason = await generate_with_deepseek(
         prompt=prompt,
         system_instruction=system_instruction,
-        model=DEEPSEEK_MODEL,
+        model=OPENAI_MODEL,
         max_tokens=2048,
         temperature=0.5,
         response_format={"type": "json_object"},

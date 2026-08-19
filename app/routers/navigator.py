@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 import logging
 
-from app.core.config import DEEPSEEK_MODEL
+from app.core.config import OPENAI_MODEL
 from app.core.models import ChatRequest, ChatResponse, GeneratedDocument, NavigatorRequest
 from app.core.prompts import ISO_NAVIGATOR_SYSTEM_PROMPT
 from app.core.session import handle_chat
@@ -40,7 +40,7 @@ async def navigator_chat(request: ChatRequest):
                 "What evidence would an auditor look for?",
                 "How does this integrate with other management systems?",
             ],
-            model=DEEPSEEK_MODEL,
+            model=OPENAI_MODEL,
             temperature=0.5,
         )
     except Exception:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 
-from app.core.config import DEEPSEEK_MODEL, DEEPSEEK_MODEL_PRO
+from app.core.config import OPENAI_MODEL, OPENAI_MODEL_PRO
 from app.core.models import GeneratedDocument, NavigatorRequest
 from app.core.prompts import ISO_NAVIGATOR_SYSTEM_PROMPT
 from app.core.token_utils import is_truncated, get_text_wrap_message
@@ -80,7 +80,7 @@ Do not include introductory or concluding filler.
         logger.warning(f"RAG search failed: {e}")
 
     context_length = len(org_context) + sum(len(str(v)) for v in extra_inputs.values())
-    model = DEEPSEEK_MODEL_PRO if context_length > 1000 else DEEPSEEK_MODEL
+    model = OPENAI_MODEL_PRO if context_length > 1000 else OPENAI_MODEL
     content, finish_reason = await generate_with_deepseek(
         prompt=prompt,
         system_instruction=ISO_NAVIGATOR_SYSTEM_PROMPT,

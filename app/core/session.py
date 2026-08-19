@@ -8,8 +8,8 @@ from typing import Any, Dict, List
 
 from fastapi import HTTPException
 
-from app.core.client import DeepSeekClient
-from app.core.config import DEEPSEEK_MODEL, SESSION_STORE
+from app.core.client import OpenAIClient
+from app.core.config import OPENAI_MODEL, SESSION_STORE
 from app.core.models import ChatRequest, ChatResponse
 from app.core.token_utils import is_truncated
 
@@ -21,7 +21,7 @@ async def handle_chat(
     system_prompt: str,
     sources: List[str],
     suggested_followups: List[str],
-    model: str = DEEPSEEK_MODEL,
+    model: str = OPENAI_MODEL,
     temperature: float = 0.5,
 ) -> ChatResponse:
     """
@@ -69,7 +69,7 @@ async def handle_chat(
     for msg in request.messages:
         messages.append({"role": "user", "content": msg.content})
 
-    client = DeepSeekClient.get_async_client()
+    client = OpenAIClient.get_async_client()
     try:
         response = await asyncio.wait_for(
             client.chat.completions.create(

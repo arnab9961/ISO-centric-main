@@ -7,25 +7,25 @@ from typing import Any, Dict, Optional, Tuple
 
 from fastapi import HTTPException
 
-from app.core.client import DeepSeekClient
-from app.core.config import DEEPSEEK_MODEL, DEEPSEEK_MODEL_PRO
+from app.core.client import OpenAIClient
+from app.core.config import OPENAI_MODEL, OPENAI_MODEL_PRO
 
 logger = logging.getLogger(__name__)
 
 
-DEEPSEEK_CALL_TIMEOUT = 590  # seconds — must be less than DEEPSEEK_TIMEOUT_SECONDS in client.py
+OPENAI_CALL_TIMEOUT = 590  # seconds — must be less than OPENAI_TIMEOUT_SECONDS in client.py
 
 
 async def generate_with_deepseek(
     prompt: str,
     system_instruction: str,
-    model: str = DEEPSEEK_MODEL,
+    model: str = OPENAI_MODEL,
     temperature: float = 0.3,
     max_tokens: int = 4096,
     response_format: Optional[Dict[str, str]] = None,
 ) -> Tuple[str, str]:
-    """Generate free-text content using the DeepSeek API. Returns (content, finish_reason) tuple."""
-    client = DeepSeekClient.get_async_client()
+    """Generate free-text content using the OpenAI API. Returns (content, finish_reason) tuple."""
+    client = OpenAIClient.get_async_client()
     try:
         kwargs = {
             "model": model,
@@ -41,7 +41,7 @@ async def generate_with_deepseek(
 
         response = await asyncio.wait_for(
             client.chat.completions.create(**kwargs),
-            timeout=DEEPSEEK_CALL_TIMEOUT,
+            timeout=OPENAI_CALL_TIMEOUT,
         )
         content = response.choices[0].message.content
         finish_reason = response.choices[0].finish_reason
@@ -51,25 +51,25 @@ async def generate_with_deepseek(
         
         return content, finish_reason
     except asyncio.TimeoutError:
-        logger.error("DeepSeek text generation timed out after %ss", DEEPSEEK_CALL_TIMEOUT)
+        logger.error("OpenAI text generation timed out after %ss", OPENAI_CALL_TIMEOUT)
         raise HTTPException(
             status_code=504,
             detail="AI generation timed out. Please try with a shorter request or retry shortly.",
         )
     except Exception as e:
-        logger.exception("DeepSeek text generation failed")
-        raise HTTPException(status_code=500, detail=f"DeepSeek API Error: {str(e)}")
+        logger.exception("OpenAI text generation failed")
+        raise HTTPException(status_code=500, detail=f"OpenAI API Error: {str(e)}")
 
 
 async def analyze_with_deepseek(
     prompt: str,
     system_instruction: str,
     response_schema: Dict[str, Any],
-    model: str = DEEPSEEK_MODEL_PRO,
+    model: str = OPENAI_MODEL_PRO,
     max_tokens: int = 8192,
 ) -> Tuple[Dict[str, Any], str]:
-    """Analyze content using the DeepSeek API with structured JSON output. Returns (parsed_dict, finish_reason) tuple."""
-    client = DeepSeekClient.get_async_client()
+    """Analyze content using the OpenAI API with structured JSON output. Returns (parsed_dict, finish_reason) tuple."""
+    client = OpenAIClient.get_async_client()
     try:
         schema_str = json.dumps(response_schema, indent=2)
         full_system_instruction = (
@@ -91,7 +91,7 @@ async def analyze_with_deepseek(
                 max_tokens=max_tokens,
                 response_format={"type": "json_object"},
             ),
-            timeout=DEEPSEEK_CALL_TIMEOUT,
+            timeout=OPENAI_CALL_TIMEOUT,
         )
         content = response.choices[0].message.content
         finish_reason = response.choices[0].finish_reason
@@ -115,25 +115,25 @@ async def analyze_with_deepseek(
         
         return parsed, finish_reason
     except asyncio.TimeoutError:
-        logger.error("DeepSeek structured analysis timed out after %ss", DEEPSEEK_CALL_TIMEOUT)
+        logger.error("OpenAI structured analysis timed out after %ss", OPENAI_CALL_TIMEOUT)
         raise HTTPException(
             status_code=504,
             detail="AI analysis timed out. Please try with a shorter document or retry shortly.",
         )
     except Exception as e:
-        logger.exception("DeepSeek structured analysis failed")
-        raise HTTPException(status_code=500, detail=f"DeepSeek API Error: {str(e)}")
+        logger.exception("OpenAI structured analysis failed")
+        raise HTTPException(status_code=500, detail=f"OpenAI API Error: {str(e)}")
 
 
 async def analyze_stream_with_deepseek(
     prompt: str,
     system_instruction: str,
     response_schema: Dict[str, Any],
-    model: str = DEEPSEEK_MODEL_PRO,
+    model: str = OPENAI_MODEL_PRO,
     max_tokens: int = 8192,
 ):
-    """Analyze content using the DeepSeek API with structured JSON output, streaming the partial JSON string."""
-    client = DeepSeekClient.get_async_client()
+    """Analyze content using the OpenAI API with structured JSON output, streaming the partial JSON string."""
+    client = OpenAIClient.get_async_client()
     try:
         schema_str = json.dumps(response_schema, indent=2)
         full_system_instruction = (
@@ -142,7 +142,7 @@ async def analyze_stream_with_deepseek(
             + schema_str
         )
         # We don't wrap the entire async iteration in a single asyncio.wait_for for simplicity.
-        # DeepSeek client's internal timeout params handle stall timeouts.
+        # OpenAI client's internal timeout params handle stall timeouts.
         response_stream = await client.chat.completions.create(
             model=model,
             messages=[
@@ -173,5 +173,5 @@ async def analyze_stream_with_deepseek(
             yield f"__FINISH_REASON__{finish_reason}"
     except Exception as e:
         # Note: Streaming generator errors are raised where the generator is consumed
-        logger.exception("DeepSeek stream analysis failed")
-        raise HTTPException(status_code=500, detail=f"DeepSeek API Error (Stream): {str(e)}")
+        logger.exception("OpenAI stream analysis failed")
+        raise HTTPException(status_code=500, detail=f"OpenAI API Error (Stream): {str(e)}")

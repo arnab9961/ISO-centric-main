@@ -16,8 +16,8 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.client import DeepSeekClient
-from app.core.config import DEEPSEEK_MODEL
+from app.core.client import OpenAIClient
+from app.core.config import OPENAI_MODEL
 from app.routers import audit_lens, benchmark, chat, navigator, quiz, utils, discovery, rag
 
 load_dotenv()
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # Startup
     print("🚀 ISO Standards AI Assistant starting...")
-    print(f"📦 DeepSeek Model: {DEEPSEEK_MODEL}")
+    print(f"📦 OpenAI Model: {OPENAI_MODEL}")
     port = os.getenv("PORT", 8001)
     print(f"🔗 API Documentation: http://localhost:{port}/docs")
     
@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     print("🛑 Shutting down ISO Standards AI Assistant...")
-    await DeepSeekClient.close()
+    await OpenAIClient.close()
 
 # ---------------------------------------------------------------------------
 # Application
@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="ISO Standards AI Assistant API",
-    description="DeepSeek API-powered backend for ISO compliance management.",
+    description="OpenAI GPT-4o-mini powered backend for ISO compliance management.",
     version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc",

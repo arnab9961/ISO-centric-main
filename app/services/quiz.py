@@ -6,7 +6,7 @@ from collections import defaultdict, deque
 from datetime import datetime, timezone
 from typing import Any, Deque, Dict, Optional
 
-from app.core.config import DEEPSEEK_MODEL_PRO
+from app.core.config import OPENAI_MODEL_PRO
 from app.core.prompts import (
     FLASHCARD_GENERATION_SYSTEM_PROMPT,
     QUIZ_FEEDBACK_SYSTEM_PROMPT,
@@ -185,7 +185,7 @@ async def generate_quiz(
         prompt=prompt,
         system_instruction=QUIZ_GENERATION_SYSTEM_PROMPT,
         response_schema=QUIZ_RESPONSE_SCHEMA,
-        model=DEEPSEEK_MODEL_PRO,
+        model=OPENAI_MODEL_PRO,
         max_tokens=max_tokens,
     )
 
@@ -234,7 +234,7 @@ async def generate_flashcards(
         prompt=prompt,
         system_instruction=FLASHCARD_GENERATION_SYSTEM_PROMPT,
         response_schema=FLASHCARD_RESPONSE_SCHEMA,
-        model=DEEPSEEK_MODEL_PRO,
+        model=OPENAI_MODEL_PRO,
         max_tokens=max_tokens,
     )
 
@@ -300,7 +300,7 @@ async def generate_quiz_stream(
         prompt=prompt,
         system_instruction=QUIZ_GENERATION_SYSTEM_PROMPT,
         response_schema=QUIZ_RESPONSE_SCHEMA,
-        model=DEEPSEEK_MODEL_PRO,
+        model=OPENAI_MODEL_PRO,
         max_tokens=max_tokens,
     ):
         # Check if this is the finish_reason marker
@@ -393,7 +393,7 @@ async def generate_quiz_feedback(
         prompt=prompt,
         system_instruction=QUIZ_FEEDBACK_SYSTEM_PROMPT,
         response_schema=QUIZ_FEEDBACK_RESPONSE_SCHEMA,
-        model=DEEPSEEK_MODEL_PRO,
+        model=OPENAI_MODEL_PRO,
         max_tokens=4096,
     )
     
@@ -436,7 +436,7 @@ async def generate_followup_question(
         prompt=prompt,
         system_instruction=FOLLOWUP_QUESTION_SYSTEM_PROMPT,
         response_schema=FOLLOWUP_QUESTION_RESPONSE_SCHEMA,
-        model=DEEPSEEK_MODEL_PRO,
+        model=OPENAI_MODEL_PRO,
         max_tokens=500,
     )
     

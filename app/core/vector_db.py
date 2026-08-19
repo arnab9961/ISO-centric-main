@@ -3,14 +3,28 @@ from typing import Optional
 
 import chromadb
 from chromadb.config import Settings
+from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
+
+from app.core.config import OPENAI_EMBEDDING_MODEL
 
 
 class VectorDBClient:
-    """Singleton ChromaDB client manager."""
+    """Singleton ChromaDB client manager with OpenAI embeddings."""
 
     _client: Optional[chromadb.ClientAPI] = None
     _collection: Optional[chromadb.Collection] = None
     _persist_directory: str = "./chroma_db"
+    _embedding_function: Optional[OpenAIEmbeddingFunction] = None
+
+    @classmethod
+    def _get_embedding_function(cls) -> OpenAIEmbeddingFunction:
+        if cls._embedding_function is None:
+            api_key = os.getenv("OPENAI_API_KEY")
+            cls._embedding_function = OpenAIEmbeddingFunction(
+                api_key=api_key,
+                model_name=OPENAI_EMBEDDING_MODEL,
+            )
+        return cls._embedding_function
 
     @classmethod
     def get_client(cls) -> chromadb.ClientAPI:
@@ -31,6 +45,7 @@ class VectorDBClient:
             cls._collection = client.get_or_create_collection(
                 name=name,
                 metadata={"hnsw:space": "cosine"},
+                embedding_function=cls._get_embedding_function(),
             )
         return cls._collection
 
@@ -49,3 +64,4 @@ class VectorDBClient:
     def close(cls) -> None:
         cls._client = None
         cls._collection = None
+        cls._embedding_function = None

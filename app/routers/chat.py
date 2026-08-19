@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
-from app.core.config import DEEPSEEK_MODEL
+from app.core.config import OPENAI_MODEL
 from app.core.models import ChatMessage, ChatRequest, ChatResponse, ISOStandard
 from app.core.prompts import GENERAL_CHAT_SYSTEM_PROMPT
 from app.core.session import handle_chat
@@ -69,7 +69,7 @@ async def general_chat(
                 "How does this apply to a small organisation?",
                 "What documentation is required?",
             ],
-            model=DEEPSEEK_MODEL,
+            model=OPENAI_MODEL,
             temperature=0.5,
         )
     except HTTPException:

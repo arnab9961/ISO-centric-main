@@ -5,7 +5,7 @@ from typing import Optional
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
-from app.core.config import DEEPSEEK_MODEL_PRO
+from app.core.config import OPENAI_MODEL_PRO
 from app.core.models import (
     BenchmarkAnalysisResponse,
     BenchmarkRequest,
@@ -133,6 +133,6 @@ async def benchmark_chat(request: ChatRequest):
             "Can you provide a template for this?",
             "How long will implementation take?",
         ],
-        model=DEEPSEEK_MODEL_PRO,
+        model=OPENAI_MODEL_PRO,
         temperature=0.4,
     )

@@ -10,8 +10,8 @@ from typing import Any, Dict, Optional
 
 from fastapi import HTTPException, UploadFile
 
-from app.core.client import DeepSeekClient
-from app.core.config import DEEPSEEK_MODEL_PRO
+from app.core.client import OpenAIClient
+from app.core.config import OPENAI_MODEL_PRO
 from app.core.prompts import BENCHMARK_AI_SYSTEM_PROMPT
 from app.core.token_utils import is_truncated, get_json_wrap_message, attempt_json_repair
 from app.services.rag import search_similar
@@ -202,7 +202,7 @@ RESPOND ONLY WITH VALID JSON MATCHING THE SCHEMA.
 
     combined_prompt = "\n\n".join(contents_text)
 
-    client = DeepSeekClient.get_async_client()
+    client = OpenAIClient.get_async_client()
     try:
         full_system_instruction = (
             BENCHMARK_AI_SYSTEM_PROMPT
@@ -210,7 +210,7 @@ RESPOND ONLY WITH VALID JSON MATCHING THE SCHEMA.
         )
         response = await asyncio.wait_for(
             client.chat.completions.create(
-                model=DEEPSEEK_MODEL_PRO,
+                model=OPENAI_MODEL_PRO,
                 messages=[
                     {
                         "role": "system",

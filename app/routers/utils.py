@@ -3,8 +3,8 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
-from app.core.client import DeepSeekClient
-from app.core.config import DEEPSEEK_MODEL
+from app.core.client import OpenAIClient
+from app.core.config import OPENAI_MODEL
 from app.core.models import ISOStandard
 from app.services.benchmark import get_iso_clause_structure
 
@@ -19,31 +19,31 @@ async def root():
         "message": "ISO Standards AI Assistant API is running",
         "version": "2.0.0",
         "modules": ["ISO Navigator", "Audit Lens", "Benchmark AI"],
-        "deepseek_model": DEEPSEEK_MODEL,
+        "openai_model": OPENAI_MODEL,
         "documentation": "/docs",
     }
 
 
 @router.get("/api/v1/health")
 async def health_check():
-    """Detailed health check with DeepSeek connectivity."""
+    """Detailed health check with OpenAI connectivity."""
     try:
-        client = DeepSeekClient.get_async_client()
+        client = OpenAIClient.get_async_client()
         test_response = await client.chat.completions.create(
-            model=DEEPSEEK_MODEL,
+            model=OPENAI_MODEL,
             messages=[{"role": "user", "content": "Respond with 'OK' if connection successful"}],
             max_tokens=10,
         )
-        deepseek_status = "connected" if test_response.choices[0].message.content else "error"
+        openai_status = "connected" if test_response.choices[0].message.content else "error"
     except Exception as e:
-        logger.exception("Health check DeepSeek connectivity failed")
-        deepseek_status = f"error: {str(e)}"
+        logger.exception("Health check OpenAI connectivity failed")
+        openai_status = f"error: {str(e)}"
 
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
-        "deepseek_api": deepseek_status,
-        "model": DEEPSEEK_MODEL,
+        "openai_api": openai_status,
+        "model": OPENAI_MODEL,
     }
 
 

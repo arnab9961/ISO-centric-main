@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Dict, List, Optional
 
-from app.core.config import DEEPSEEK_MODEL
+from app.core.config import OPENAI_MODEL
 from app.core.models import (
     AuditContextOption,
     AuditContextResponse,
@@ -71,7 +71,7 @@ async def generate_audit_context(request: OrgContextRequest) -> AuditContextResp
     response_text, finish_reason = await generate_with_deepseek(
         prompt=prompt,
         system_instruction=AUDIT_LENS_CONTEXT_PROMPT,
-        model=DEEPSEEK_MODEL,
+        model=OPENAI_MODEL,
         temperature=0.7,
         response_format={"type": "json_object"},
     )
@@ -131,7 +131,7 @@ async def generate_audit_step(request: AuditLensStepRequest) -> AuditLensStepRes
     response_text, finish_reason = await generate_with_deepseek(
         prompt=prompt,
         system_instruction="You are a JSON output generator for ISO audit materials.",
-        model=DEEPSEEK_MODEL,
+        model=OPENAI_MODEL,
         temperature=0.5,
         response_format={"type": "json_object"},
     )

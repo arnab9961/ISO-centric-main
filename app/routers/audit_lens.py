@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import logging
 
-from app.core.config import DEEPSEEK_MODEL
+from app.core.config import OPENAI_MODEL
 from app.core.models import (
     AuditContextResponse,
     AuditLensStepRequest,
@@ -65,6 +65,6 @@ async def audit_lens_chat(request: ChatRequest):
             "What is the standard requirement for this finding?",
             "How long should corrective action take?",
         ],
-        model=DEEPSEEK_MODEL,
+        model=OPENAI_MODEL,
         temperature=0.4,
     )

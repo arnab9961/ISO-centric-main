@@ -8,8 +8,9 @@ load_dotenv()
 # ---------------------------------------------------------------------------
 # Model configuration
 # ---------------------------------------------------------------------------
-DEEPSEEK_MODEL: str = "deepseek-v4-flash"
-DEEPSEEK_MODEL_PRO: str = "deepseek-v4-flash"
+OPENAI_MODEL: str = "gpt-4o-mini"
+OPENAI_MODEL_PRO: str = "gpt-4o-mini"
+OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
 
 # ---------------------------------------------------------------------------
 # In-memory session store
