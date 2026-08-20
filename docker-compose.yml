@@ -1,9 +1,9 @@
 services:
   app:
     build: .
-    container_name: scala
+    container_name: scala-2
     ports:
-      - "8001:8001"
+      - "8050:8050"
     env_file:
       - .env          # 👈 tell Docker to load .env
     environment:
