@@ -8,8 +8,8 @@ load_dotenv()
 # ---------------------------------------------------------------------------
 # Model configuration
 # ---------------------------------------------------------------------------
-OPENAI_MODEL: str = "gpt-5.6"
-OPENAI_MODEL_PRO: str = "gpt-5.6"
+OPENAI_MODEL: str = "gpt-5.6-luna"
+OPENAI_MODEL_PRO: str = "gpt-5.6-luna"
 OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
 
 # ---------------------------------------------------------------------------
