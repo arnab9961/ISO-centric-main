@@ -132,6 +132,7 @@ async def generate_audit_step(request: AuditLensStepRequest) -> AuditLensStepRes
         prompt=prompt,
         system_instruction="You are a JSON output generator for ISO audit materials.",
         model=OPENAI_MODEL,
+        max_tokens=8192,
         temperature=0.5,
         response_format={"type": "json_object"},
     )
