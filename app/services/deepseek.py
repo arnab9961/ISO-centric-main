@@ -33,8 +33,7 @@ async def generate_with_deepseek(
                 {"role": "system", "content": system_instruction},
                 {"role": "user", "content": prompt},
             ],
-            "temperature": temperature,
-            "max_tokens": max_tokens,
+            "max_completion_tokens": max_tokens,
         }
         if response_format:
             kwargs["response_format"] = response_format
@@ -87,8 +86,7 @@ async def analyze_with_deepseek(
                     },
                     {"role": "user", "content": prompt},
                 ],
-                temperature=0.1,
-                max_tokens=max_tokens,
+                max_completion_tokens=max_tokens,
                 response_format={"type": "json_object"},
             ),
             timeout=OPENAI_CALL_TIMEOUT,
@@ -152,8 +150,7 @@ async def analyze_stream_with_deepseek(
                 },
                 {"role": "user", "content": prompt},
             ],
-            temperature=0.1,
-            max_tokens=max_tokens,
+            max_completion_tokens=max_tokens,
             response_format={"type": "json_object"},
             stream=True,
         )

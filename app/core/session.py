@@ -75,8 +75,7 @@ async def handle_chat(
             client.chat.completions.create(
                 model=model,
                 messages=messages,
-                temperature=temperature,
-                max_tokens=8192,
+                max_completion_tokens=8192,
             ),
             timeout=180,
         )
@@ -114,8 +113,7 @@ async def handle_chat(
                 client.chat.completions.create(
                     model=model,
                     messages=completion_messages,
-                    temperature=temperature,
-                    max_tokens=2048,
+                    max_completion_tokens=2048,
                 ),
                 timeout=60,
             )

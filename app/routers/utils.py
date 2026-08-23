@@ -32,7 +32,7 @@ async def health_check():
         test_response = await client.chat.completions.create(
             model=OPENAI_MODEL,
             messages=[{"role": "user", "content": "Respond with 'OK' if connection successful"}],
-            max_tokens=10,
+            max_completion_tokens=10,
         )
         openai_status = "connected" if test_response.choices[0].message.content else "error"
     except Exception as e:
