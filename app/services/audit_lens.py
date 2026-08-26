@@ -132,7 +132,7 @@ async def generate_audit_step(request: AuditLensStepRequest) -> AuditLensStepRes
         prompt=prompt,
         system_instruction="You are a JSON output generator for ISO audit materials.",
         model=OPENAI_MODEL,
-        max_tokens=8192,
+        max_tokens=16384,
         temperature=0.5,
         response_format={"type": "json_object"},
     )
@@ -141,7 +141,19 @@ async def generate_audit_step(request: AuditLensStepRequest) -> AuditLensStepRes
 
     try:
         data = json.loads(response_text)
-        
+    except json.JSONDecodeError as parse_err:
+        # Attempt to repair truncated JSON (matches analyze_with_deepseek pattern)
+        from app.core.token_utils import attempt_json_repair
+        try:
+            data = attempt_json_repair(response_text)
+            logger.info(f"Successfully repaired truncated JSON for audit step {request.step_number}")
+        except ValueError:
+            logger.error(
+                f"Failed to parse audit step response: {parse_err}. Output: {response_text[:500]}"
+            )
+            raise ValueError(f"Failed to generate materials for step {request.step_number}.")
+
+    try:
         guidance = data.get("guidance", "")
         template_preview = data.get("template_preview", "")
         
@@ -161,5 +173,5 @@ async def generate_audit_step(request: AuditLensStepRequest) -> AuditLensStepRes
             next_step_available=request.step_number < 13,
         )
     except Exception as e:
-        logger.error(f"Failed to parse audit step response: {e}. Output: {response_text}")
+        logger.error(f"Failed to build audit step response: {e}")
         raise ValueError(f"Failed to generate materials for step {request.step_number}.")
