@@ -34,8 +34,9 @@ async def generate_with_openai(
                 {"role": "user", "content": prompt},
             ],
             "max_completion_tokens": max_tokens,
-            "temperature": temperature,
         }
+        if not model.startswith("gpt-5"):
+            kwargs["temperature"] = temperature
         if response_format:
             kwargs["response_format"] = response_format
 
