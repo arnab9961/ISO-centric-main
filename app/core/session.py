@@ -26,7 +26,7 @@ async def handle_chat(
 ) -> ChatResponse:
     """
     Unified chat handler with multi-turn session memory (SESSION_STORE keyed by session_id).
-    Uses the OpenAI-compatible DeepSeek API.
+    Uses the OpenAI API.
     """
     session_id = request.session_id or str(uuid.uuid4())
 

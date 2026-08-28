@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 OPENAI_CALL_TIMEOUT = 590  # seconds — must be less than OPENAI_TIMEOUT_SECONDS in client.py
 
 
-async def generate_with_deepseek(
+async def generate_with_openai(
     prompt: str,
     system_instruction: str,
     model: str = OPENAI_MODEL,
@@ -34,6 +34,7 @@ async def generate_with_deepseek(
                 {"role": "user", "content": prompt},
             ],
             "max_completion_tokens": max_tokens,
+            "temperature": temperature,
         }
         if response_format:
             kwargs["response_format"] = response_format
@@ -46,7 +47,7 @@ async def generate_with_deepseek(
         finish_reason = response.choices[0].finish_reason
         
         if finish_reason == "length":
-            logger.warning(f"AI response truncated at {max_tokens} tokens (generate_with_deepseek)")
+            logger.warning(f"AI response truncated at {max_tokens} tokens (generate_with_openai)")
         
         return content, finish_reason
     except asyncio.TimeoutError:
@@ -56,11 +57,27 @@ async def generate_with_deepseek(
             detail="AI generation timed out. Please try with a shorter request or retry shortly.",
         )
     except Exception as e:
-        logger.exception("OpenAI text generation failed")
+        # Retry with max_tokens if max_completion_tokens is not supported
+        if "max_completion_tokens" in str(e):
+            logger.warning("max_completion_tokens not supported, retrying with max_tokens")
+            kwargs.pop("max_completion_tokens", None)
+            kwargs["max_tokens"] = max_tokens
+            try:
+                response = await asyncio.wait_for(
+                    client.chat.completions.create(**kwargs),
+                    timeout=OPENAI_CALL_TIMEOUT,
+                )
+                content = response.choices[0].message.content
+                finish_reason = response.choices[0].finish_reason
+                return content, finish_reason
+            except Exception as retry_err:
+                logger.exception("OpenAI text generation failed on retry")
+                raise HTTPException(status_code=500, detail=f"OpenAI API Error: {str(retry_err)}")
+        logger.exception("OpenAI text generation failed: %s", str(e))
         raise HTTPException(status_code=500, detail=f"OpenAI API Error: {str(e)}")
 
 
-async def analyze_with_deepseek(
+async def analyze_with_openai(
     prompt: str,
     system_instruction: str,
     response_schema: Dict[str, Any],
@@ -95,7 +112,7 @@ async def analyze_with_deepseek(
         finish_reason = response.choices[0].finish_reason
         
         if finish_reason == "length":
-            logger.warning(f"AI response truncated at {max_tokens} tokens (analyze_with_deepseek)")
+            logger.warning(f"AI response truncated at {max_tokens} tokens (analyze_with_openai)")
         
         try:
             parsed = json.loads(content)
@@ -123,7 +140,7 @@ async def analyze_with_deepseek(
         raise HTTPException(status_code=500, detail=f"OpenAI API Error: {str(e)}")
 
 
-async def analyze_stream_with_deepseek(
+async def analyze_stream_with_openai(
     prompt: str,
     system_instruction: str,
     response_schema: Dict[str, Any],
@@ -166,7 +183,7 @@ async def analyze_stream_with_deepseek(
         # Yield finish_reason as final item
         if finish_reason:
             if finish_reason == "length":
-                logger.warning(f"AI response truncated at {max_tokens} tokens (analyze_stream_with_deepseek)")
+                logger.warning(f"AI response truncated at {max_tokens} tokens (analyze_stream_with_openai)")
             yield f"__FINISH_REASON__{finish_reason}"
     except Exception as e:
         # Note: Streaming generator errors are raised where the generator is consumed

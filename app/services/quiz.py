@@ -14,7 +14,7 @@ from app.core.prompts import (
     FOLLOWUP_QUESTION_SYSTEM_PROMPT,
 )
 from app.core.token_utils import is_truncated, get_json_wrap_message
-from app.services.deepseek import analyze_with_deepseek, analyze_stream_with_deepseek
+from app.services.openai_gen import analyze_with_openai, analyze_stream_with_openai
 
 # ---------------------------------------------------------------------------
 # In-memory question history
@@ -181,7 +181,7 @@ async def generate_quiz(
 
     # Budget tuned for short-format MCQs while supporting up to 30 questions.
     max_tokens = 8192  # Give it the maximum output tokens the API allows to prevent cutoff
-    result, finish_reason = await analyze_with_deepseek(
+    result, finish_reason = await analyze_with_openai(
         prompt=prompt,
         system_instruction=QUIZ_GENERATION_SYSTEM_PROMPT,
         response_schema=QUIZ_RESPONSE_SCHEMA,
@@ -230,7 +230,7 @@ async def generate_flashcards(
     )
 
     max_tokens = 8192
-    result, finish_reason = await analyze_with_deepseek(
+    result, finish_reason = await analyze_with_openai(
         prompt=prompt,
         system_instruction=FLASHCARD_GENERATION_SYSTEM_PROMPT,
         response_schema=FLASHCARD_RESPONSE_SCHEMA,
@@ -296,7 +296,7 @@ async def generate_quiz_stream(
     # We yield chunks back. Question caching cannot easily happen on partial chunks here
     # without implementing a partial-JSON parser. It could be left to the complete response sync route,
     # or implemented via a frontend callback if needed. For now, streaming bypasses local caching.
-    async for chunk in analyze_stream_with_deepseek(
+    async for chunk in analyze_stream_with_openai(
         prompt=prompt,
         system_instruction=QUIZ_GENERATION_SYSTEM_PROMPT,
         response_schema=QUIZ_RESPONSE_SCHEMA,
@@ -389,7 +389,7 @@ async def generate_quiz_feedback(
         "and correlating them to specific ISO clause weaknesses."
     )
 
-    result, finish_reason = await analyze_with_deepseek(
+    result, finish_reason = await analyze_with_openai(
         prompt=prompt,
         system_instruction=QUIZ_FEEDBACK_SYSTEM_PROMPT,
         response_schema=QUIZ_FEEDBACK_RESPONSE_SCHEMA,
@@ -432,7 +432,7 @@ async def generate_followup_question(
         f"Please provide exactly {num_questions} small, thought-provoking follow-up question(s)."
     )
 
-    result, finish_reason = await analyze_with_deepseek(
+    result, finish_reason = await analyze_with_openai(
         prompt=prompt,
         system_instruction=FOLLOWUP_QUESTION_SYSTEM_PROMPT,
         response_schema=FOLLOWUP_QUESTION_RESPONSE_SCHEMA,

@@ -6,8 +6,8 @@ from datetime import datetime
 from app.core.config import OPENAI_MODEL, OPENAI_MODEL_PRO
 from app.core.models import GeneratedDocument, NavigatorRequest
 from app.core.prompts import ISO_NAVIGATOR_SYSTEM_PROMPT
-from app.core.token_utils import is_truncated, get_text_wrap_message
-from app.services.deepseek import generate_with_deepseek
+from app.core.token_utils import is_truncated
+from app.services.openai_gen import generate_with_openai
 from app.services.rag import search_similar
 import logging
 
@@ -81,22 +81,18 @@ Do not include introductory or concluding filler.
 
     context_length = len(org_context) + sum(len(str(v)) for v in extra_inputs.values())
     model = OPENAI_MODEL_PRO if context_length > 1000 else OPENAI_MODEL
-    content, finish_reason = await generate_with_deepseek(
+    content, finish_reason = await generate_with_openai(
         prompt=prompt,
         system_instruction=ISO_NAVIGATOR_SYSTEM_PROMPT,
         model=model,
-        max_tokens=4096,
+        max_tokens=8192,
     )
-    
-    # Handle truncation
-    from app.core.token_utils import is_truncated
+
     if is_truncated(finish_reason):
-        content += "\n\n[Note: Response truncated due to token limit]"
-    
-    # Append truncation note if response was cut off
+        logger.warning("Navigator response reached the output token limit")
+
     confidence_score = 0.85
     if is_truncated(finish_reason):
-        content += get_text_wrap_message()
         confidence_score -= 0.15  # Reduce confidence for truncated documents
 
     clause_matches = re.findall(

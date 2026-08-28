@@ -14,7 +14,7 @@ from app.core.models import (
 )
 from app.core.prompts import AUDIT_LENS_CONTEXT_PROMPT, AUDIT_LENS_STEP_PROMPT
 from app.core.token_utils import is_truncated
-from app.services.deepseek import generate_with_deepseek
+from app.services.openai_gen import generate_with_openai
 from app.services.discovery import scrape_url
 from app.services.rag import search_similar
 
@@ -68,7 +68,7 @@ async def generate_audit_context(request: OrgContextRequest) -> AuditContextResp
     except Exception as e:
         logger.warning(f"RAG search failed: {e}")
 
-    response_text, finish_reason = await generate_with_deepseek(
+    response_text, finish_reason = await generate_with_openai(
         prompt=prompt,
         system_instruction=AUDIT_LENS_CONTEXT_PROMPT,
         model=OPENAI_MODEL,
@@ -128,7 +128,7 @@ async def generate_audit_step(request: AuditLensStepRequest) -> AuditLensStepRes
     except Exception as e:
         logger.warning(f"RAG search failed: {e}")
 
-    response_text, finish_reason = await generate_with_deepseek(
+    response_text, finish_reason = await generate_with_openai(
         prompt=prompt,
         system_instruction="You are a JSON output generator for ISO audit materials.",
         model=OPENAI_MODEL,
@@ -142,7 +142,7 @@ async def generate_audit_step(request: AuditLensStepRequest) -> AuditLensStepRes
     try:
         data = json.loads(response_text)
     except json.JSONDecodeError as parse_err:
-        # Attempt to repair truncated JSON (matches analyze_with_deepseek pattern)
+        # Attempt to repair truncated JSON (matches analyze_with_openai pattern)
         from app.core.token_utils import attempt_json_repair
         try:
             data = attempt_json_repair(response_text)

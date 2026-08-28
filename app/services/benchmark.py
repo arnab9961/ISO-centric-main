@@ -13,7 +13,7 @@ from fastapi import HTTPException, UploadFile
 from app.core.client import OpenAIClient
 from app.core.config import OPENAI_MODEL_PRO
 from app.core.prompts import BENCHMARK_AI_SYSTEM_PROMPT
-from app.core.token_utils import is_truncated, get_json_wrap_message, attempt_json_repair
+from app.core.token_utils import is_truncated, attempt_json_repair
 from app.services.rag import search_similar
 
 logger = logging.getLogger(__name__)
@@ -97,7 +97,7 @@ async def generate_benchmark_analysis(
     department: Optional[str] = None,
     analysis_id: str = "",
 ) -> Dict[str, Any]:
-    """Generate a complete ISO benchmark analysis using the DeepSeek API."""
+    """Generate a complete ISO benchmark analysis using the OpenAI API."""
 
     if not document_text and not document_content:
         raise HTTPException(
@@ -218,7 +218,7 @@ RESPOND ONLY WITH VALID JSON MATCHING THE SCHEMA.
                     },
                     {"role": "user", "content": combined_prompt},
                 ],
-                max_completion_tokens=4096,
+                max_completion_tokens=8192,
                 response_format={"type": "json_object"},
             ),
             timeout=BENCHMARK_TIMEOUT_SECONDS,
@@ -249,10 +249,8 @@ RESPOND ONLY WITH VALID JSON MATCHING THE SCHEMA.
         result["analysis_timestamp"] = datetime.utcnow().isoformat()
         result["analysis_id"] = analysis_id
         
-        # Add truncation warning if detected
         if is_truncated(finish_reason):
-            result["_was_truncated"] = True
-            result["_truncation_warning"] = get_json_wrap_message()
+            logger.warning("Benchmark analysis reached the output token limit")
         
         return result
     except asyncio.TimeoutError:
